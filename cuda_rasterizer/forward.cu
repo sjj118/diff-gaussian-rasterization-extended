@@ -336,6 +336,7 @@ renderCUDA(
   const float* __restrict__ bg_color,
   float* __restrict__ out_color,
   float* __restrict__ out_depth,
+  float* __restrict__ out_depth_median,
   float* __restrict__ out_norm,
   float* __restrict__ out_extra)
 {
@@ -369,6 +370,7 @@ renderCUDA(
   uint32_t last_contributor = 0;
   float C[CHANNELS] = { 0 };
   float D = 0;
+  float DM = INFINITY;
   float N[3] = {0};
   float E[MAX_EXTRA_DIMS] = {0};
   // We assure the extra feature dim ED <= 8
@@ -425,6 +427,7 @@ renderCUDA(
       for (int ch = 0; ch < CHANNELS; ch++)
         C[ch] += features[collected_id[j] * CHANNELS + ch] * alpha * T;
       D += depths[collected_id[j]] * alpha * T;
+      DM = (T > 0.5 && test_T <= 0.5) ? depths[collected_id[j]] : DM;
       for (int ch = 0; ch < 3; ch++)
         N[ch] += norms[collected_id[j] * 3 + ch] * alpha * T;
       for(int ch = 0; ch < ED; ch++)
@@ -446,6 +449,7 @@ renderCUDA(
     for (int ch = 0; ch < CHANNELS; ch++)
       out_color[ch * H * W + pix_id] = C[ch] + T * bg_color[ch];
     out_depth[pix_id] = D;
+    out_depth_median[pix_id] = DM;
     // float len = sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]) + 1e-6;
     for (int ch = 0; ch < 3; ch++)
       out_norm[ch * H * W + pix_id] = N[ch];
@@ -472,6 +476,7 @@ void FORWARD::render(
   const float* bg_color,
   float* out_color,
   float* out_depth,
+  float* out_depth_median,
   float* out_norm,
   float* out_extra)
 {
@@ -490,6 +495,7 @@ void FORWARD::render(
     bg_color,
     out_color,
     out_depth,
+    out_depth_median,
     out_norm,
     out_extra);
 }

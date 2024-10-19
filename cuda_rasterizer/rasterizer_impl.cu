@@ -219,6 +219,7 @@ int CudaRasterizer::Rasterizer::forward(
   const bool prefiltered,
   float* out_color,
   float* out_depth,
+  float* out_depth_median,
   float* out_norm,
   float* out_alpha,
   float* out_extra,
@@ -339,6 +340,7 @@ int CudaRasterizer::Rasterizer::forward(
     background,
     out_color,
     out_depth,
+    out_depth_median,
     out_norm,
     out_extra), debug)
 

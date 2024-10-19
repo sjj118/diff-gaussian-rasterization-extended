@@ -52,6 +52,7 @@ namespace CudaRasterizer
       const bool prefiltered,
       float* out_color,
       float* out_depth,
+      float* out_depth_median,
       float* out_norm,
       float* out_alpha,
       float* out_extra,
